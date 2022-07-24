@@ -49,6 +49,7 @@ class Group(models.Model):
     def __str__(self) -> str:
         return self.title
 
+
 class Comment(models.Model):
     post = models.ForeignKey(
         'Post',
@@ -64,6 +65,7 @@ class Comment(models.Model):
     created = models.DateTimeField(
         'Дата публикации',
         auto_now_add=True)
+
 
 class Follow(models.Model):
     user = models.ForeignKey(

@@ -375,5 +375,5 @@ class FollowTest(TestCase):
         response_index_not = self.authorized_client_2.get(
             reverse('posts:follow_index')
         )
-        author = response_index_not.context['page_obj'].objectt_list
+        author = response_index_not.context['page_obj'].object_list
         self.assertFalse(author)

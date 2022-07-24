@@ -26,6 +26,7 @@ class GroupAdmin(admin.ModelAdmin):
     search_fields = ('slug', 'title', )
     list_filter = ('slug', )
 
+
 class CommentAdmin(admin.ModelAdmin):
     list_display = (
         'pk',
@@ -42,4 +43,3 @@ class CommentAdmin(admin.ModelAdmin):
 admin.site.register(Post, PostAdmin)
 admin.site.register(Group, GroupAdmin)
 admin.site.register(Comment, CommentAdmin)
-
