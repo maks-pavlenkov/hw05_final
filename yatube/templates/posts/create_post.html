@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}
+{% if is_edit %}
+Редактировать запись
+{% else %}
+Новый пост
+{% endif %}
+{% endblock %}
+{% block content %}
+{% load static %} 
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 p-5">
+      <div class="card">
+        <div class="card-header">       
+          Новый пост             
+        </div>
+        <div class="card-body">        
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}     
+            <div class="form-group row my-3 p-3">
+              <label for="id_text">
+                Текст поста                  
+                <span class="required text-danger" >*</span>
+              </label>
+              <textarea name="text" cols="40" rows="10" class="form-control" required id="id_text">
+                {% if is_edit %}
+                {{ posts.text }}
+                {% endif %}
+              </textarea>                
+              <small id="id_text-help" class="form-text text-muted">
+                {% if is_edit %}
+                Текст поста
+                {% else %}
+                Текст нового поста
+                {% endif %}
+              </small>                  
+            </div>
+            <div class="form-group row my-3 p-3">
+              <label for="id_group">
+                Группа                  
+              </label>
+              {% if is_edit %}
+              <select name="group" class="form-control" id="id_group">
+                <option value="">{{ form.group.field.empty_label }}</option>
+                <option value="{{ posts.group.id }}" selected>{{ posts.group.title }}</option>
+                {% for field in form.group.field.queryset %}
+                {% if field.title != posts.group.title %}
+                <option value="{{ field.pk }}">{{ field.title }}</option>
+                {% endif %}
+                {% endfor %}
+              </select>
+              {% else %}
+              <select name="group" class="form-control" id="id_group">
+                <option value="">{{ form.group.field.empty_label }}</option>
+                {% for field in form.group.field.queryset %}
+                {% if field.title != posts.group.title %}
+                <option value="{{ field.pk }}">{{ field.title }}</option>
+                {% endif %}
+                {% endfor %}
+              </select>
+              {% endif %}
+              <small id="id_group-help" class="form-text text-muted">
+                Группа, к которой будет относиться пост
+              </small>
+            </div>
+            <label for='id_image'>Картинка</label>
+            <input type='file' name='image' accept='image/*' class='form_control' id='id_image'>
+            <div class="d-flex justify-content-end">
+              <button type="submit" class="btn btn-primary">
+                {% if is_edit %}
+                 Сохранить
+                {% else %}
+                Добавить
+                {% endif %}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
