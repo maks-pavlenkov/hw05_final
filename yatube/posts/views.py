@@ -1,5 +1,6 @@
 from django.shortcuts import redirect, render, get_object_or_404
 from django.views.decorators.cache import cache_page
+from django.db.models import Count
 from django.contrib.auth.decorators import login_required
 from .models import Post, Group, User, Comment, Follow
 from .forms import PostForm, CommentForm
@@ -29,19 +30,20 @@ def group_posts(request, group):
 
 def profile(request, username):
     author = get_object_or_404(User, username=username)
+    following = False
     if request.user.is_authenticated:
         following = Follow.objects.filter(
             user=request.user,
             author=author).exists()
-    else:
-        following = False
-    user_posts = author.posts.select_related('group')
-    counted_posts = user_posts.count()
+    user_posts = (
+        author.posts.select_related('group')
+        .annotate(counted_posts=Count('author__posts'))
+    )
     page_obj = paginate(request, user_posts)
     context = {
         'author': author,
         'page_obj': page_obj,
-        'counted_posts': counted_posts,
+        'counted_posts': user_posts[0].counted_posts if user_posts else 0,
         'following': following
     }
     return render(request, 'posts/profile.html', context)
@@ -49,8 +51,8 @@ def profile(request, username):
 
 def post_detail(request, post_id):
     post = Post.objects.select_related('group', 'author').get(pk=post_id)
-    user = post.author.username
-    user_posts = Post.objects.filter(author__username=user).count()
+    user = post.author
+    user_posts = Post.objects.filter(author=user).count()
     comments = Comment.objects.all()
     form = CommentForm(request.POST or None)
     context = {
@@ -137,5 +139,7 @@ def profile_follow(request, username):
 @login_required
 def profile_unfollow(request, username):
     author = get_object_or_404(User, username=username)
-    Follow.objects.filter(user=request.user, author=author).delete()
+    subscriber = Follow.objects.filter(user=request.user, author=author)
+    if subscriber:
+        subscriber.delete()
     return redirect('posts:profile', username=author)
